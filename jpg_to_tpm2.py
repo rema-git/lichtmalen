@@ -8,6 +8,7 @@ Created on Mon Oct 27 00:33:17 2014
 import sys
 import numpy as np
 import Image
+import binascii
 #import matplotlib.pyplot as plt
 
 def tpm2(image):
@@ -17,16 +18,14 @@ def tpm2(image):
      * returns tpm2 string
     """
     dim = tuple((np.shape(image)[0], np.shape(image)[1]))
-    framesize = '{:04X}'.format(dim[1]*3)
-    frameheader = 'C9 DA ' + ' '.join((framesize[:2], framesize[2:]))
-    output = [] # file header
+    frameheader = 'C9DA{:04X}'.format(dim[1]*3)
+    output = []
 
     for frame in range(dim[0]): # loop over lines = height
         output += frameheader
         for led in range(dim[1]): # loop over columns = width
-            output += ' {:02X} {:02X} {:02X}'.format(*image[frame][led])
-        output += ' 36 ' # end-of-frame
-    output += '\n' # file footer, EOF
+            output += '{:02X}{:02X}{:02X}'.format(*image[frame][led])
+        output += '36' # end-of-frame
 
     return ''.join(output)
 
@@ -34,9 +33,9 @@ def imageFilter(image):
     """
     example filter function
     """
-    filteredImage = image.resize((128, 128))
+    filteredImage = image#.resize((128, 128))
 
-    return filteredImage 
+    return filteredImage
 
 # show usage info
 if len(sys.argv) < 3:
@@ -65,10 +64,10 @@ tmp2string = tpm2(image)
 print 'Image converted.'
 
 # show result to screen
-#print '\n' + tmp2string
+print '\n' + tmp2string + '\n'
 
 # write result to file
 tmp2file = sys.argv[2]
-with open(tmp2file, 'w') as text_file:
-    text_file.write(tmp2string)
-    print 'TPM2 file written.'
+with open(tmp2file, 'wb') as text_file:
+    tmp2binary = binascii.a2b_hex(tmp2string)
+    text_file.write(tmp2binary)
