@@ -26,29 +26,30 @@ def tpm2(image):
         for led in range(dim[1]): # loop over columns = width
             output += '{:02X}{:02X}{:02X}'.format(*image[frame][led])
         output += '36' # end-of-frame
-
+    output += frameheader + '0'*6*dim[1] + '36' # end-of-file: black frame
     return ''.join(output)
 
 def imageFilter(image):
     """
     example filter function
     """
-    filteredImage = image#.resize((128, 128))
+    filteredImage = image.rotate(90)
+    filteredImage = filteredImage#.resize((128, 128))
 
     return filteredImage
 
 # show usage info
 if len(sys.argv) < 3:
-    print 'Usage: jpg_to_tpm2.py foo.jpg bar.tp2'
+    print 'Usage: image_to_tpm2.py foo.[jpg|png|gif|...] bar.tp2'
     sys.exit(1)
 
-# open jpg file
+# open image file
 try:
     filename = sys.argv[1]
     image = Image.open(filename)
     print 'Image file read.'
 except:
-    print 'ERROR: cannot read .jpg file!'
+    print 'ERROR: cannot read input image file!'
 
 # filter image
 image = imageFilter(image)
@@ -58,6 +59,7 @@ image = np.array(image)
 
 # display image
 #plt.imshow(image, interpolation='none')
+#plt.show()
 
 # convert image to tmp2
 tmp2string = tpm2(image)
