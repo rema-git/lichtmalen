@@ -1,4 +1,4 @@
 lichtmalen
 ==========
 
-first: convert image files to tpm2 format
+1) convert image files to tpm2 format
