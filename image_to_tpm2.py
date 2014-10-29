@@ -38,38 +38,43 @@ def imageFilter(image):
 
     return filteredImage
 
-# show usage info
-if len(sys.argv) < 3:
-    print 'Usage: image_to_tpm2.py foo.[jpg|png|gif|...] bar.tp2'
-    sys.exit(1)
+def main(imageFilename, tmp2Filename):
+    """
+    open image, apply filter function and save as TMP2 binary file
+    """
+    # open image file
+    try:
+        image = Image.open(imageFilename)
+        print 'Image file read.'
+    except:
+        print 'ERROR: cannot read input image file!'
 
-# open image file
-try:
-    filename = sys.argv[1]
-    image = Image.open(filename)
-    print 'Image file read.'
-except:
-    print 'ERROR: cannot read input image file!'
+    # filter image
+    image = imageFilter(image)
 
-# filter image
-image = imageFilter(image)
+    # convert to numpy array with dim(height, width, color)
+    image = np.array(image)
 
-# convert to numpy array with dim(height, width, color)
-image = np.array(image)
+    # display image
+    #plt.imshow(image, interpolation='none')
+    #plt.show()
 
-# display image
-#plt.imshow(image, interpolation='none')
-#plt.show()
+    # convert image to tmp2
+    tmp2string = tpm2(image)
+    print 'Image converted.'
 
-# convert image to tmp2
-tmp2string = tpm2(image)
-print 'Image converted.'
+    # show result to screen
+    #print '\n' + tmp2string + '\n'
 
-# show result to screen
-print '\n' + tmp2string + '\n'
+    # write result to file
+    with open(tmp2Filename, 'wb') as binFile:
+        tmp2binary = binascii.a2b_hex(tmp2string)
+        binFile.write(tmp2binary)
+        print 'TPM2 file written.'
 
-# write result to file
-tmp2file = sys.argv[2]
-with open(tmp2file, 'wb') as text_file:
-    tmp2binary = binascii.a2b_hex(tmp2string)
-    text_file.write(tmp2binary)
+if __name__ == "__main__":
+    # if this module is being run directly use command line arguments
+    if len(sys.argv) < 3:
+        print 'Usage: image_to_tpm2.py foo.[jpg|png|gif|...] bar.tp2'
+        sys.exit(1)
+    main(sys.argv[1], sys.argv[2])
