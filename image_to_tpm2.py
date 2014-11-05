@@ -30,17 +30,18 @@ def tpm2(image, lastFrameBlack=False):
     if lastFrameBlack:
         output += frameheader + '0'*6*dim[1] + '36' # black frame
         print 'Added black frame to EOF'
+
     return ''.join(output)
 
 def imageFilter(image):
     """
     example filter function
     """
-    filteredImage = image.rotate(90)
+    filteredImage = image.rotate(-90)
 
     return filteredImage
 
-def imageFit2LEDs(image, n_LEDs=24):
+def imageFit2LEDs(image, n_LEDs=121):
     """
     resize image to number of LEDs
     """
@@ -49,6 +50,14 @@ def imageFit2LEDs(image, n_LEDs=24):
     image = image.resize((n_LEDs, hsize))
 
     return image
+
+def rgb2grb(image):
+    """
+    swap color order of numpy array: RGB -> GRB
+    """
+    R, G, B = image.T
+
+    return np.array([G, R, B]).T
 
 def main(imageFilename, tpm2Filename, *opts):
     """
@@ -67,6 +76,9 @@ def main(imageFilename, tpm2Filename, *opts):
 
     # convert to numpy array with dim(height, width, color)
     image = np.array(image)
+
+    # swap colors
+    image = rgb2grb(image)
 
     # display image
     #plt.imshow(image, interpolation='none')
@@ -89,7 +101,7 @@ if __name__ == "__main__":
     # if this module is being run directly use command line arguments
     parser = argparse.ArgumentParser(description='convert an image file to tpm2 format')
     parser.add_argument('--noloop',
-        action='store_true', dest='lastFrameBlack', 
+        action='store_true', dest='lastFrameBlack',
         help='add a black frame to stop with')
     parser.add_argument('infile',
         type=argparse.FileType('r'),
