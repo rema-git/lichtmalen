@@ -71,6 +71,9 @@ def main(imageFilename, tpm2Filename, *opts):
         print 'ERROR: cannot read input image file!'
 
     # filter image
+    if image.mode != 'RGB':
+        print 'Convert image to RGB'
+        image = image.convert('RGB')
     image = imageFilter(image)
     image = imageFit2LEDs(image)
 
